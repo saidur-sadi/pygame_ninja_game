@@ -1,3 +1,5 @@
 .history
 .vscode
+dist
+build
 __pycache__
