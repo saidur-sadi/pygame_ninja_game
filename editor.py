@@ -31,6 +31,11 @@ class Editor:
         self.movement = [False, False, False, False]
 
         self.tilemap = Tilemap(self, tile_size=16)
+        
+        try:
+            self.tilemap.load('map.json')
+        except FileNotFoundError:
+            pass
 
         self.scroll = [0, 0]
 
@@ -43,22 +48,25 @@ class Editor:
 
         self.shift = False
 
+        self.ongrid = True
+
     def run(self):
         while True:
             # Fill the screen: everything from last fram will be replace with this color
             # Create a rectangle with: top left pos, width and height
             # self.display.fill((14, 219, 248))
             self.display.fill((0, 0, 0))
-            
+
             # move camera using keyboard (wasd)
             self.scroll[0] += (self.movement[1] - self.movement[0])*2
             self.scroll[1] += (self.movement[3] - self.movement[2])*2
 
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
             self.tilemap.render(self.display, offset=render_scroll)
-            
+
             # copy since we want to set alpha (opacity)
-            current_tile_img = self.assets[self.tile_list[self.tile_group]][self.tile_variant].copy()
+            current_tile_img = self.assets[self.tile_list[self.tile_group]][self.tile_variant].copy(
+            )
             current_tile_img.set_alpha(100)  # 0 is fully transparent
 
             # mouse position
@@ -69,13 +77,16 @@ class Editor:
             tile_pos = (int((mpos[0] + self.scroll[0]) // self.tilemap.tile_size),
                         int((mpos[1] + self.scroll[1]) // self.tilemap.tile_size))
 
-            # to see where the next tile will be placed
-            # convert tile_pos back to pixel pos, remove scroll
-            self.display.blit(current_tile_img, (tile_pos[0] * self.tilemap.tile_size -
-                              self.scroll[0], tile_pos[1] * self.tilemap.tile_size-self.scroll[1]))
+            if self.ongrid:
+                # to see where the next tile will be placed
+                # convert tile_pos back to pixel pos, remove scroll
+                self.display.blit(current_tile_img, (tile_pos[0] * self.tilemap.tile_size -
+                                                     self.scroll[0], tile_pos[1] * self.tilemap.tile_size-self.scroll[1]))
+            else:
+                self.display.blit(current_tile_img, mpos)
 
             # left click to create tile
-            if self.clicking:
+            if self.clicking and self.ongrid:
                 self.tilemap.tilemap[str(tile_pos[0]) + ';'+str(tile_pos[1])] = {
                     'type': self.tile_list[self.tile_group],
                     'variant': self.tile_variant,
@@ -87,7 +98,12 @@ class Editor:
                 tile_loc = str(tile_pos[0]) + ';' + str(tile_pos[1])
                 if tile_loc in self.tilemap.tilemap:
                     del self.tilemap.tilemap[tile_loc]
-
+                for tile in self.tilemap.offgrid_tiles.copy():
+                    tile_img = self.assets[tile['type']][tile['variant']]
+                    # hitbox
+                    tile_r = pygame.Rect(tile['pos'][0] - self.scroll[0], tile['pos'][1] - self.scroll[1], tile_img.get_width(), tile_img.get_height())
+                    if tile_r.collidepoint(mpos):
+                        self.tilemap.offgrid_tiles.remove(tile)
             self.display.blit(current_tile_img, (5, 5))
 
             # blit essentially copy the memory to the position
@@ -99,6 +115,9 @@ class Editor:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:  # left click
                         self.clicking = True
+                        if not self.ongrid:
+                            self.tilemap.offgrid_tiles.append(
+                                {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': (mpos[0] + render_scroll[0], mpos[1] + self.scroll[1])})
                     if event.button == 3:  # right click
                         self.right_clicking = True
                     if self.shift:
@@ -132,6 +151,12 @@ class Editor:
                         self.movement[2] = True
                     if event.key == pygame.K_s:
                         self.movement[3] = True
+                    if event.key == pygame.K_g:
+                        self.ongrid = not self.ongrid
+                    if event.key == pygame.K_t:
+                        self.tilemap.autotile()
+                    if event.key == pygame.K_o:
+                        self.tilemap.save('map.json')
                     if event.key == pygame.K_LSHIFT:
                         self.shift = True
                 if event.type == pygame.KEYUP:
