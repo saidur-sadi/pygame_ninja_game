@@ -34,19 +34,26 @@ class Tilemap:
                 matches.append(tile.copy())
                 if not keep:
                     self.offgrid_tiles.remove(tile)
-
-        for loc in self.tilemap:
+        # In the video, the tilemap is not wrapped by a list(), which
+        # may cause RuntimeError: dictionary changed size during iteration                    
+        for loc in list(self.tilemap):
             tile = self.tilemap[loc]
             if (tile['type'], tile['variant']) in id_pairs:
-                # a clean copy of the tile data
                 matches.append(tile.copy())
                 matches[-1]['pos'] = matches[-1]['pos'].copy()
                 matches[-1]['pos'][0] *= self.tile_size
                 matches[-1]['pos'][1] *= self.tile_size
                 if not keep:
                     del self.tilemap[loc]
+        
         return matches
-
+    
+    def solid_check(self, pos):
+        tile_loc = str(int(pos[0] // self.tile_size)) + ';' + str(int(pos[1] // self.tile_size))
+        if tile_loc in self.tilemap:
+            if self.tilemap[tile_loc]['type'] in PHYSICS_TILES:
+                return self.tilemap[tile_loc]
+        
     def tiles_around(self, pos):
         tiles = []
         tile_loc = (int(pos[0] // self.tile_size),
