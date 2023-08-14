@@ -76,6 +76,8 @@ class Game:
         self.load_level(self.level)
 
         self.screenshake = 0
+        
+        self.current_level_passed = False
 
     def load_level(self, map_id):
         self.tilemap.load('data/maps/' + str(map_id) + '.json')
@@ -118,7 +120,7 @@ class Game:
 
             self.screenshake = max(0, self.screenshake - 1)
 
-            if not len(self.enemies):
+            if self.current_level_passed:
                 self.transition += 1
                 if self.transition > 30:
                     # ensure don't go above max level
@@ -126,6 +128,7 @@ class Game:
                         self.level + 1, len(os.listdir('data/maps')) - 1)
                     # load level when complete black
                     self.load_level(self.level)
+                    self.current_level_passed = False
             if self.transition < 0:
                 self.transition += 1
 
@@ -164,6 +167,8 @@ class Game:
                 enemy.render(self.display, offset=render_scroll)
                 if kill:
                     self.enemies.remove(enemy)
+                    if not len(self.enemies):
+                        self.current_level_passed = True 
 
             if not self.dead:
                 # movement[1] == 0 since we move left and right

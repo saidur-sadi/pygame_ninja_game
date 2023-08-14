@@ -3,6 +3,7 @@ import math
 from scripts.entity import PhysicsEntity
 from scripts.particle import Particle
 
+
 class Player(PhysicsEntity):
     def __init__(self, game, pos, size):
         super().__init__(game, 'player', pos, size)
@@ -27,7 +28,8 @@ class Player(PhysicsEntity):
         self.wall_slide = False
         # the player slides if it is in the air and touches the wall
         if (self.collisions['right'] or self.collisions['left']) and self.air_time > 4:
-            self.air_time = 0
+            # set to greater than 4, otherwise player is not sliding anymore in next call
+            self.air_time = 5
             self.wall_slide = True
             self.velocity[1] = min(self.velocity[1], 0.5)
             if self.collisions['right']:

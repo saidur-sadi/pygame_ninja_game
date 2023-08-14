@@ -30,7 +30,7 @@ class PhysicsEntity:
             self.action = action
             self.animation = self.game.assets[self.type +
                                               '/' + self.action].copy()
-
+            
     def update(self, tilemap, movement=(0, 0)):
         # collisons are reset every reset
         self.collisions = {'up': False, 'down': False,
