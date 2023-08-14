@@ -231,19 +231,19 @@ class Game:
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
+                    if event.key == pygame.K_LEFT or event.key == pygame.K_a:
                         self.movement[0] = True
-                    if event.key == pygame.K_RIGHT:
+                    if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                         self.movement[1] = True
-                    if event.key == pygame.K_UP:  # magic: negative velocity == jump
+                    if event.key == pygame.K_UP or event.key == pygame.K_k:  # magic: negative velocity == jump
                         if self.player.jump():
                             self.sfx['jump'].play()
-                    if event.key == pygame.K_x:
+                    if event.key == pygame.K_j:
                         self.player.dash()
                 if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_LEFT:
+                    if event.key == pygame.K_LEFT or event.key == pygame.K_a:
                         self.movement[0] = False
-                    if event.key == pygame.K_RIGHT:
+                    if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                         self.movement[1] = False
             if self.transition:
                 transition_surf = pygame.Surface(self.display.get_size())
