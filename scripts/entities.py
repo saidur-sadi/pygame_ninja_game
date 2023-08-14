@@ -120,6 +120,7 @@ class Enemy(PhysicsEntity):
                        self.game.player.pos[1] - self.pos[1])
                 if (abs(dis[1]) < 16):
                     if (self.flip and dis[0] < 0):
+                        self.game.sfx['shoot'].play()
                         self.game.projectiles.append(
                             [[self.rect().centerx - 7, self.rect().centery], -1.5, 0])
                         # spawen sparks (left)
@@ -127,6 +128,7 @@ class Enemy(PhysicsEntity):
                             self.game.sparks.append(Spark(
                                 self.game.projectiles[-1][0], random.random() - 0.5 + math.pi, 2 + random.random()))
                     if (not self.flip and dis[0] > 0):
+                        self.game.sfx['shoot'].play()
                         self.game.projectiles.append(
                             [[self.rect().centerx + 7, self.rect().centery], 1.5, 0])
                         # spawen sparks (right)
@@ -144,6 +146,8 @@ class Enemy(PhysicsEntity):
 
         if abs(self.game.player.dashing) >= 50:
             if self.rect().colliderect(self.game.player.rect()):
+                self.game.screenshake = max(16, self.game.screenshake)
+                self.game.sfx['hit'].play()
                 for i in range(30):
                     angle = random.random() * math.pi * 2
                     speed = random.random() * 5
@@ -154,7 +158,7 @@ class Enemy(PhysicsEntity):
                         math.cos(angle + math.pi) * speed * 0.5, math.sin(angle + math.pi) * speed * 0.5], frame=random.randint(0, 7)))
                     # big sparks
                 self.game.sparks.append(
-                        Spark(self.rect().center, 0, 5 + random.random()))
+                    Spark(self.rect().center, 0, 5 + random.random()))
                 self.game.sparks.append(
                     Spark(self.rect().center, math.pi, 5 + random.random()))
                 return True
@@ -184,8 +188,10 @@ class Player(PhysicsEntity):
         self.air_time += 1
         # prevent falling forever
         if self.air_time > 120:
+            if not self.game.dead:
+                self.game.screenshake = max(16, self.game.screenshake)
             self.game.dead += 1
-            
+
         if self.collisions['down']:
             self.air_time = 0
             self.jumps = 1  # reset jump
@@ -257,6 +263,7 @@ class Player(PhysicsEntity):
             self.velocity[1] = -3
             self.jumps -= 1
             self.air_time = 5  # bigger than 4
+            return True
 
     def render(self, surf, offset=(0, 0)):
         # make player invisible ?
@@ -265,6 +272,7 @@ class Player(PhysicsEntity):
 
     def dash(self):
         if not self.dashing:
+            self.game.sfx['dash'].play()
             if self.flip:
                 self.dashing = -60
             else:
