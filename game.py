@@ -4,7 +4,9 @@ import pygame
 import random
 import math
 
-from scripts.entities import PhysicsEntity, Player, Enemy
+from scripts.entity import PhysicsEntity
+from scripts.player import Player
+from scripts.enemy import Enemy
 from scripts.utils import load_image, load_images, Animation
 from scripts.tilemap import Tilemap
 from scripts.cloud import Clouds
@@ -17,7 +19,7 @@ class Game:
         pygame.init()
 
         pygame.display.set_caption('Ninja')
-        self.screen = pygame.display.set_mode((640, 480))
+        self.screen = pygame.display.set_mode((800, 600))
 
         # we render on this smaller displayer, and scale up to the bigger screen
         self.display = pygame.Surface(
