@@ -17,7 +17,7 @@ def start_screen(screen):
     screen.fill((0, 0, 0))
     font = pygame.font.Font(None, 74)
     small_font = pygame.font.Font(None, 36)
-    title_text = font.render("Ninja Game", True, (255, 255, 255))
+    title_text = font.render("Blade of Shadows", True, (255, 255, 255))
     start_text = small_font.render("Start", True, (255, 255, 255))
     close_text = small_font.render("Close", True, (255, 255, 255))
     title_rect = title_text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 3))
@@ -43,7 +43,7 @@ def start_screen(screen):
 class Game:
     def __init__(self):
         pygame.init()
-        pygame.display.set_caption('Ninja')
+        pygame.display.set_caption('Blade of Shadows')
         self.screen = pygame.display.set_mode((800, 600))
         start_screen(self.screen)
         self.display = pygame.Surface((320, 240), pygame.SRCALPHA)
